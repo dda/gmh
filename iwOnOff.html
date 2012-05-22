@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+        "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Can't close infoWindow</title>
+<style type="text/css">
+#map_canvas {
+  width:  512px;
+  height: 512px;
+  border:   0px;
+}
+</style>
+
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+<script type="text/javascript" src="./GMH/GMH.js"></script>
+<script type="text/javascript">
+var map;
+var TILE_SIZE = 256;
+var gmh;
+
+function init() {
+  var whereAmI=new google.maps.LatLng(22.440099,114.064094);
+  console.log(whereAmI);
+  var mapOptions = {
+    zoom: 16,
+    center: whereAmI,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+ };
+
+ var elm = document.getElementById('map_canvas');
+ map = new google.maps.Map(elm, mapOptions);
+ gmh=new GMH(map, elm);
+ gmh.addMarker(whereAmI, null, "KatHingWai");
+ gmh.addInfoWindow(whereAmI, "吉慶圍", "KatHingWaiIW");
+ t=setTimeout("gmh.removeCloseBoxFromInfowindow('KatHingWaiIW')", 500);
+}
+
+
+</script>
+
+</head><body onLoad="init();">
+<div id="map_canvas"></div>
+<input type='button' name='clickMe' value='remove [x]' onClick='gmh.removeCloseBoxFromInfowindow("KatHingWaiIW");' />
+<input type='button' name='clickMeToo' value='restore [x]' onClick='gmh.restoreCloseBoxFromInfowindow("KatHingWaiIW");' />
+</body>
+</html>
