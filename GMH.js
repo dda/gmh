@@ -1,3 +1,5 @@
+var tmp;
+
 Number.prototype.toRad=function() {
  return this * (Math.PI / 180);
 }
@@ -7,10 +9,11 @@ Number.prototype.toRad=function() {
                Google Maps Helper
 
 ***************************************************/
-var GMH=function(map) {
+var GMH=function(map, elm) {
   this.map=map;
+  this.element=elm;
   this.markers=[]; // to keep track of markers
-  this.infoWindows=[]; // to keep track of infoWindows
+  this.infoWindows={}; // to keep track of infoWindows
   this.DRIVING=google.maps.TravelMode.DRIVING;
   this.DRIVING=google.maps.TravelMode.BICYCLING;
   this.DRIVING=google.maps.TravelMode.WALKING;
@@ -54,7 +57,7 @@ GMH.prototype.addInfoWindow = function(position, text, name) {
     position: position,
     content: text
   });
-  if(name=null) name=this.generateUUID();
+  if(name==null) name=this.generateUUID();
   this.infoWindows[name]=infoWindow;
   this.lastInfoWindowID=name;
 }
@@ -98,7 +101,7 @@ GMH.prototype.filterMarkers=function(nw, se, myMarkers) {
   var east=se.lng();
   var isInsideBounds=[];
   for (var i in myMarkers) {
-    if(myMarkers[i].position.lat()>=north && myMarkers[i].position.lat()=<south && myMarkers[i].position.lng()>=west && myMarkers[i].position.lng()=<east) {
+    if(myMarkers[i].position.lat()>=north && myMarkers[i].position.lat()<=south && myMarkers[i].position.lng()>=west && myMarkers[i].position.lng()<=east) {
       isInsideBounds.push(myMarkers[i]);
     }
   }
@@ -171,6 +174,48 @@ GMH.prototype.bestZoomLevel=function(sw, ne, pixelWidth) {
   
 }
 
+GMH.prototype.removeCloseBoxFromInfowindow=function(name) {
+  var b=this.element.getElementsByTagName('img');
+  var i, j=b.length;
+  tmp=this.infoWindows;
+  var iw=tmp[name];
+  var contents=iw.content;
+  for (i=0; i<j; i++) {
+    if(b[i].src.match('imgs8.png')){
+      if(b[i].style.left=='-18px') {
+        c=b[i].parentElement.parentElement;
+        d=c.children[1].children[0];
+        if(d!= undefined) {
+          if (d.innerHTML==contents) {
+            iw["restoreMe"]=b[i];
+            e=b[i].parentElement;
+            e.setAttribute("id", name);
+            e.style.width='1px';
+            e.style.height='1px';
+            tmp=iw;
+            console.log(iw);
+            b[i].parentElement.removeChild(b[i]);
+            return;
+          }
+        }
+      }
+    }
+  }
+}
+
+GMH.prototype.restoreCloseBoxFromInfowindow=function(name) {
+  tmp=this.infoWindows;
+  var iw=tmp[name];
+  if(iw==null) return;
+  var where=document.getElementById(name);
+  where.style.width='10px';
+  where.style.height='10px';
+  var div = document.createElement('div');
+  div.innerHTML = iw.restoreMe.outerHTML;
+  where.appendChild(div.childNodes[0]);
+}
+
+
 
 // Internal methods
 // =====================================================
@@ -186,6 +231,8 @@ GMH.prototype.equal=function(a, b) {
 */
 GMH.prototype.generateUUID=function(){
   var a=this._getRandomInt, b=this._hexAligner;
+  console.log(a);
+  console.log(b);
   return b(a(32),8)+"-"+b(a(16),4)+"-"+b(16384|a(12),4)+"-"+b(32768|a(14),4)+"-"+b(a(48),12)
 };
 GMH.prototype._getRandomInt=function(a){
@@ -194,11 +241,11 @@ GMH.prototype._getRandomInt=function(a){
   if(a<=53)return(0|Math.random()*1073741824)+(0|Math.random()*(1<<a-30))*1073741824;
   return NaN
 };
-GMH.prototype._getIntAligner=function(a){
-  return function(b,f){
+GMH.prototype._hexAligner=function(b, f) {
+  var a=16;
     for(var c=b.toString(a),d=f-c.length,e="0";d>0;d>>>=1,e+=e)
       if(d&1)c=e+c;
     return c
-  }
-};
-GMH.prototype._hexAligner=this._getIntAligner(16);
+}
+
+
