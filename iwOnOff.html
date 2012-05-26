@@ -21,19 +21,22 @@ var gmh;
 
 function init() {
   var whereAmI=new google.maps.LatLng(22.440099,114.064094);
-  console.log(whereAmI);
+  console.log("whereAmI",whereAmI);
   var mapOptions = {
     zoom: 16,
     center: whereAmI,
     mapTypeId: google.maps.MapTypeId.ROADMAP
- };
+  };
 
  var elm = document.getElementById('map_canvas');
  map = new google.maps.Map(elm, mapOptions);
  gmh=new GMH(map, elm);
- gmh.addMarker(whereAmI, null, "KatHingWai");
+ gmh.addMarker(whereAmI, "KatHingWai");
+ console.log("marker added");
  gmh.addInfoWindow(whereAmI, "吉慶圍", "KatHingWaiIW");
- t=setTimeout("gmh.removeCloseBoxFromInfowindow('KatHingWaiIW')", 500);
+ console.log("infoWindow added");
+ gmh.findInfowindowEnclosingDiv("KatHingWaiIW");
+ console.log("findInfowindowEnclosingDiv called");
 }
 
 
@@ -43,5 +46,7 @@ function init() {
 <div id="map_canvas"></div>
 <input type='button' name='clickMe' value='remove [x]' onClick='gmh.removeCloseBoxFromInfowindow("KatHingWaiIW");' />
 <input type='button' name='clickMeToo' value='restore [x]' onClick='gmh.restoreCloseBoxFromInfowindow("KatHingWaiIW");' />
+<input type='button' name='clickMeThree' value='decorate' onClick='gmh.setInfowindowStyle("KatHingWaiIW", {"opacity":"0.8", "color":"blue", "fontSize":"24px", "font-family":"LiHei Pro", "background":"yellow", "border":"2px grey dotted","top":"120px"});gmh.removeBubblePointerFromInfowindow("KatHingWaiIW");' />
+
 </body>
 </html>

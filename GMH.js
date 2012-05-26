@@ -1,4 +1,4 @@
-var tmp; // for debugging purpose. Don't mind me.
+// master 736e1a8]
 
 Number.prototype.toRad=function() {
  return this * (Math.PI / 180);
@@ -219,6 +219,17 @@ GMH.prototype.findInfowindowEnclosingDiv=function(name) {
             e=c.parentElement;
             console.log("Enclosing div: ",e);
             this.infoWindows[name].enclosingDIV=e;
+            // Now let's get the real enclosure
+            var z=e.getElementsByTagName("div");
+            for(y in z){
+              if(z[y].style.border=="1px solid rgb(171, 171, 171)"){
+                console.log(z[y]);
+                z[y].style.zIndex=2;
+                // Don't ask...
+                this.infoWindows[name].realEnclosure=z[y];
+                return;
+              }
+            }
             return;
           }
         }
@@ -226,6 +237,7 @@ GMH.prototype.findInfowindowEnclosingDiv=function(name) {
     }
   }
 }
+
 
 GMH.prototype.setInfowindowStyle=function(name, options) {
   var iw=this.infoWindows[name];
@@ -239,10 +251,44 @@ GMH.prototype.setInfowindowStyle=function(name, options) {
     }
     iw.enclosingDIV=e;
   }
+  var ee=iw.realEnclosure;
   for (var x in options) {
     if(options.hasOwnProperty(x)) {
       console.log("e.style."+x+"="+options[x]);
-      e.style[x]=options[x];
+      if(x.match(/(background|border)/i)!=null) {
+        // background/border goes to ee, the real enclosure
+        ee.style[x]=options[x];
+      } else {
+        e.style[x]=options[x];
+      }
+    }
+  }
+}
+
+GMH.prototype.removeBubblePointerFromInfowindow=function(name) {
+  var iw=this.infoWindows[name];
+  var e=iw.enclosingDIV;
+  var z=e.getElementsByTagName("img");
+  var i=0;
+  z[i++].style.display='none';
+  z[i++].style.display='none';
+  z[i++].style.display='none';
+  z[i++].style.display='none';
+  z[i++].style.display='none';
+  z[i++].style.display='none';
+  z[i++].style.display='none';
+  z[i++].style.display='none';
+  z[i++].style.display='none';
+  z[i++].style.display='none';
+  z[i++].style.display='none';
+  // remove the shadow;
+  e=gmh.element;
+  z=e.getElementsByTagName("img");
+  for (i in z) {
+    if(typeof(z[i])=="object") {
+      if(z[i].src.match("iws3.png")!=null){
+        z[i].style.display='none'
+      }
     }
   }
 }
@@ -250,8 +296,7 @@ GMH.prototype.setInfowindowStyle=function(name, options) {
 GMH.prototype.removeCloseBoxFromInfowindow=function(name) {
   var b=this.element.getElementsByTagName('img');
   var i, j=b.length;
-  tmp=this.infoWindows;
-  var iw=tmp[name];
+  var iw=this.infoWindows[name];
   var contents=iw.content;
   for (i=0; i<j; i++) {
     if(b[i].src.match('imgs8.png')){
@@ -260,12 +305,11 @@ GMH.prototype.removeCloseBoxFromInfowindow=function(name) {
         d=c.children[1].children[0];
         if(d!=undefined) {
           if (d.innerHTML==contents) {
-            iw["restoreMe"]=b[i];
+            this.infoWindows["restoreMe"]=b[i];
             e=b[i].parentElement;
             e.setAttribute("id", name);
             e.style.width='1px';
             e.style.height='1px';
-            tmp=iw;
             console.log(iw);
             b[i].parentElement.removeChild(b[i]);
             return;
@@ -277,8 +321,7 @@ GMH.prototype.removeCloseBoxFromInfowindow=function(name) {
 }
 
 GMH.prototype.restoreCloseBoxFromInfowindow=function(name) {
-  tmp=this.infoWindows;
-  var iw=tmp[name];
+  var iw=this.infoWindows[name];
   if(iw==null) return;
   var where=document.getElementById(name);
   where.style.width='10px';
