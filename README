@@ -5,3 +5,10 @@ by dda @ stimulus.hk
 This is a small helper library for Google Maps v3 I am developing for my own use.
 
 I am adding a small test html page that shows what GMH can do for you.
+
+v 0.1.16
+  Added some functions to infoWindows. You can manipulate some of the style options of the infowindows (like opacity).
+
+v 0.1.15
+  Fixed some bugs
+  Added the .removeCloseBoxFromInfowindow / .restoreCloseBoxFromInfowindow functions

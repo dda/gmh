@@ -1,4 +1,4 @@
-var tmp;
+var tmp; // for debugging purpose. Don't mind me.
 
 Number.prototype.toRad=function() {
  return this * (Math.PI / 180);
@@ -17,10 +17,39 @@ var GMH=function(map, elm) {
   this.DRIVING=google.maps.TravelMode.DRIVING;
   this.DRIVING=google.maps.TravelMode.BICYCLING;
   this.DRIVING=google.maps.TravelMode.WALKING;
+  this.BOUNCE=google.maps.Animation.BOUNCE;
+  this.DROP=google.maps.Animation.DROP;
+
   this.lastMarkerID='';
   this.lastInfoWindowID='';
   this.GLOBE_WIDTH = 256; // a constant in Google's map projection
 }
+
+var GMH_MarkerIcon=function(image, size, origin, anchor, scaledSize) {
+  // size=[w,h]
+  this.mi=new google.maps.MarkerImage(image);
+  if(size!=null) this.setSize(size[0], size[1]);
+  if(origin!=null) this.setOrigin(origin[0], origin[1]);
+  if(anchor!=null) this.setOrigin(anchor[0], anchor[1]);
+  if(scaledSize!=null) this.setScaledSize(scaledSize[0], scaledSize[1]);
+}
+
+GMH_MarkerIcon.prototype.setSize(w, h) {
+  this.mi.size=new google.maps.Size(w, h);
+}
+
+GMH_MarkerIcon.prototype.setScaledSize(w, h) {
+  this.mi.scaledSize=new google.maps.Size(w, h);
+}
+
+GMH_MarkerIcon.prototype.setOrigin(w, h) {
+  this.mi.origin=new google.maps.Point(w, h);
+}
+
+GMH_MarkerIcon.prototype.setAnchor(w, h) {
+  this.mi.anchor=new google.maps.Point(w, h);
+}
+
 
   /**
    * adds a named marker at position destinationPos, with image as, well, image
@@ -31,12 +60,12 @@ var GMH=function(map, elm) {
    * @return          		nada
    */
 
-GMH.prototype.addMarker=function(destinationPos, image, name) {
+GMH.prototype.addMarker=function(destinationPos, name, image) {
   var marker=new google.maps.Marker({
     position: destinationPos,
-    map: this.map,
-    icon: image
   });
+  if(image!=null) marker.setIcon(image);
+  marker.setMap(map);
   if(name=null) name=this.generateUUID();
   this.markers[name]=marker;
   this.lastMarkerID=name;
@@ -174,6 +203,30 @@ GMH.prototype.bestZoomLevel=function(sw, ne, pixelWidth) {
   
 }
 
+GMH.prototype.findInfowindowEnclosingDiv=function(name) {
+  var b=this.element.getElementsByTagName('img');
+  var i, j=b.length;
+  tmp=this.infoWindows;
+  var iw=tmp[name];
+  var contents=iw.content;
+  for (i=0; i<j; i++) {
+    if(b[i].src.match('imgs8.png')){
+      if(b[i].style.left=='-18px') {
+        c=b[i].parentElement.parentElement;
+        d=c.children[1].children[0];
+        if(d!=undefined) {
+          if (d.innerHTML==contents) {
+            // we have the right one
+            e=c.parentElement;
+            console.log(e);
+            return e;
+          }
+        }
+      }
+    }
+  }
+}
+
 GMH.prototype.removeCloseBoxFromInfowindow=function(name) {
   var b=this.element.getElementsByTagName('img');
   var i, j=b.length;
@@ -185,7 +238,7 @@ GMH.prototype.removeCloseBoxFromInfowindow=function(name) {
       if(b[i].style.left=='-18px') {
         c=b[i].parentElement.parentElement;
         d=c.children[1].children[0];
-        if(d!= undefined) {
+        if(d!=undefined) {
           if (d.innerHTML==contents) {
             iw["restoreMe"]=b[i];
             e=b[i].parentElement;
@@ -247,5 +300,3 @@ GMH.prototype._hexAligner=function(b, f) {
       if(d&1)c=e+c;
     return c
 }
-
-
