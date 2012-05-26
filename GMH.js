@@ -305,7 +305,7 @@ GMH.prototype.removeCloseBoxFromInfowindow=function(name) {
         d=c.children[1].children[0];
         if(d!=undefined) {
           if (d.innerHTML==contents) {
-            this.infoWindows["restoreMe"]=b[i];
+            this.infoWindows[name].restoreMe=b[i];
             e=b[i].parentElement;
             e.setAttribute("id", name);
             e.style.width='1px';
