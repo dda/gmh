@@ -34,19 +34,19 @@ var GMH_MarkerIcon=function(image, size, origin, anchor, scaledSize) {
   if(scaledSize!=null) this.setScaledSize(scaledSize[0], scaledSize[1]);
 }
 
-GMH_MarkerIcon.prototype.setSize(w, h) {
+GMH_MarkerIcon.prototype.setSize=function(w, h) {
   this.mi.size=new google.maps.Size(w, h);
 }
 
-GMH_MarkerIcon.prototype.setScaledSize(w, h) {
+GMH_MarkerIcon.prototype.setScaledSize=function(w, h) {
   this.mi.scaledSize=new google.maps.Size(w, h);
 }
 
-GMH_MarkerIcon.prototype.setOrigin(w, h) {
+GMH_MarkerIcon.prototype.setOrigin=function(w, h) {
   this.mi.origin=new google.maps.Point(w, h);
 }
 
-GMH_MarkerIcon.prototype.setAnchor(w, h) {
+GMH_MarkerIcon.prototype.setAnchor=function(w, h) {
   this.mi.anchor=new google.maps.Point(w, h);
 }
 
@@ -206,8 +206,7 @@ GMH.prototype.bestZoomLevel=function(sw, ne, pixelWidth) {
 GMH.prototype.findInfowindowEnclosingDiv=function(name) {
   var b=this.element.getElementsByTagName('img');
   var i, j=b.length;
-  tmp=this.infoWindows;
-  var iw=tmp[name];
+  var iw=this.infoWindows[name];
   var contents=iw.content;
   for (i=0; i<j; i++) {
     if(b[i].src.match('imgs8.png')){
@@ -218,11 +217,32 @@ GMH.prototype.findInfowindowEnclosingDiv=function(name) {
           if (d.innerHTML==contents) {
             // we have the right one
             e=c.parentElement;
-            console.log(e);
-            return e;
+            console.log("Enclosing div: ",e);
+            this.infoWindows[name].enclosingDIV=e;
+            return;
           }
         }
       }
+    }
+  }
+}
+
+GMH.prototype.setInfowindowStyle=function(name, options) {
+  var iw=this.infoWindows[name];
+  var e=iw.enclosingDIV;
+  if(e==null) {
+    this.findInfowindowEnclosingDiv(name);
+    e=iw.enclosingDIV;
+    if(e==null) {
+      console.log("e is null, again. That shouldn't happen!");
+      return;
+    }
+    iw.enclosingDIV=e;
+  }
+  for (var x in options) {
+    if(options.hasOwnProperty(x)) {
+      console.log("e.style."+x+"="+options[x]);
+      e.style[x]=options[x];
     }
   }
 }
@@ -269,8 +289,8 @@ GMH.prototype.restoreCloseBoxFromInfowindow=function(name) {
 }
 
 
-
-// Internal methods
+// =====================================================
+//                  Internal methods
 // =====================================================
 GMH.prototype.equal=function(a, b) {
 // compares two positions
