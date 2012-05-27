@@ -81,13 +81,17 @@ GMH.prototype.addMarker=function(destinationPos, name, image) {
    */
 
 GMH.prototype.addInfoWindow = function(position, text, name) {
+  var tempUUID=this.generateUUID();
   var infoWindow = new google.maps.InfoWindow({
     map: this.map,
     position: position,
-    content: text
+    content: tempUUID
   });
+  infoWindow.tempUUID=tempUUID;
+  infoWindow.savedText=text;
   if(name==null) name=this.generateUUID();
   this.infoWindows[name]=infoWindow;
+//  this.findInfowindowEnclosingDiv(name);
   this.lastInfoWindowID=name;
 }
 
@@ -205,15 +209,20 @@ GMH.prototype.bestZoomLevel=function(sw, ne, pixelWidth) {
 
 GMH.prototype.findInfowindowEnclosingDiv=function(name) {
   var b=this.element.getElementsByTagName('img');
+  console.log(this.element);
+  console.log("I have "+b.length+" <img> tags");
   var i, j=b.length;
   var iw=this.infoWindows[name];
-  var contents=iw.content;
+  var contents=iw.tempUUID;
+  console.log("looking for a div with "+contents);
   for (i=0; i<j; i++) {
+    console.log("img.src=", b[i].src);
     if(b[i].src.match('imgs8.png')){
       if(b[i].style.left=='-18px') {
         c=b[i].parentElement.parentElement;
         d=c.children[1].children[0];
         if(d!=undefined) {
+          console.log("d.innerHTML=",d.innerHTML);
           if (d.innerHTML==contents) {
             // we have the right one
             e=c.parentElement;
@@ -223,10 +232,11 @@ GMH.prototype.findInfowindowEnclosingDiv=function(name) {
             var z=e.getElementsByTagName("div");
             for(y in z){
               if(z[y].style.border=="1px solid rgb(171, 171, 171)"){
-                console.log(z[y]);
+                console.log("That's mah boy!",z[y]);
                 z[y].style.zIndex=2;
                 // Don't ask...
                 this.infoWindows[name].realEnclosure=z[y];
+                d.innerHTML=iw.savedText;
                 return;
               }
             }
@@ -236,10 +246,10 @@ GMH.prototype.findInfowindowEnclosingDiv=function(name) {
       }
     }
   }
+  console.log("Couldn't find div");
 }
 
-
-GMH.prototype.setInfowindowStyle=function(name, options) {
+GMH.prototype.setInfowindowStyle=function(name, options, target) {
   var iw=this.infoWindows[name];
   var e=iw.enclosingDIV;
   if(e==null) {
@@ -252,10 +262,26 @@ GMH.prototype.setInfowindowStyle=function(name, options) {
     iw.enclosingDIV=e;
   }
   var ee=iw.realEnclosure;
+  if(target!=null) {
+    if(target.substring(0,1)==".") {
+      // a class. for the moment, we'll work with the first instance.
+      var z=e.getElementsByClassName(target.substring(1));
+      console.log(z);
+      if(z==null) return;
+      e=z[0];
+      ee=e;
+    } else if(target.substring(0,1)=="#") {
+      // an id.
+      var z=document.getElementById(target.substring(1));
+      if(z==null) return;
+      e=z;
+      ee=e;
+    }
+  }
   for (var x in options) {
     if(options.hasOwnProperty(x)) {
       console.log("e.style."+x+"="+options[x]);
-      if(x.match(/(background|border)/i)!=null) {
+      if(x.match(/(background|border|overflow)/i)!=null) {
         // background/border goes to ee, the real enclosure
         ee.style[x]=options[x];
       } else {
@@ -294,30 +320,17 @@ GMH.prototype.removeBubblePointerFromInfowindow=function(name) {
 }
 
 GMH.prototype.removeCloseBoxFromInfowindow=function(name) {
-  var b=this.element.getElementsByTagName('img');
-  var i, j=b.length;
-  var iw=this.infoWindows[name];
-  var contents=iw.content;
-  for (i=0; i<j; i++) {
-    if(b[i].src.match('imgs8.png')){
-      if(b[i].style.left=='-18px') {
-        c=b[i].parentElement.parentElement;
-        d=c.children[1].children[0];
-        if(d!=undefined) {
-          if (d.innerHTML==contents) {
-            this.infoWindows[name].restoreMe=b[i];
-            e=b[i].parentElement;
-            e.setAttribute("id", name);
-            e.style.width='1px';
-            e.style.height='1px';
-            console.log(iw);
-            b[i].parentElement.removeChild(b[i]);
-            return;
-          }
-        }
-      }
-    }
-  }
+// You need to call findInfowindowEnclosingDiv first
+  var b=gmh.infoWindows[name].enclosingDIV.getElementsByTagName('img');
+  b=b[b.length-1];
+  var c=b.parentElement.parentElement;
+  var d=c.children[1].children[0];
+  this.infoWindows[name].restoreMe=b;
+  var e=b.parentElement;
+  e.setAttribute("id", name);
+  e.style.width='1px';
+  e.style.height='1px';
+  e.removeChild(b);
 }
 
 GMH.prototype.restoreCloseBoxFromInfowindow=function(name) {
@@ -347,8 +360,6 @@ GMH.prototype.equal=function(a, b) {
 */
 GMH.prototype.generateUUID=function(){
   var a=this._getRandomInt, b=this._hexAligner;
-  console.log(a);
-  console.log(b);
   return b(a(32),8)+"-"+b(a(16),4)+"-"+b(16384|a(12),4)+"-"+b(32768|a(14),4)+"-"+b(a(48),12)
 };
 GMH.prototype._getRandomInt=function(a){
