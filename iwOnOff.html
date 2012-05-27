@@ -33,20 +33,26 @@ function init() {
  gmh=new GMH(map, elm);
  gmh.addMarker(whereAmI, "KatHingWai");
  console.log("marker added");
- gmh.addInfoWindow(whereAmI, "吉慶圍", "KatHingWaiIW");
+ gmh.addInfoWindow(whereAmI, "吉慶圍<div class='tagada'>香港最靚嘅圍村</div>", "KatHingWaiIW");
  console.log("infoWindow added");
- gmh.findInfowindowEnclosingDiv("KatHingWaiIW");
- console.log("findInfowindowEnclosingDiv called");
+ var t=setTimeout('gmh.findInfowindowEnclosingDiv("KatHingWaiIW");', 500);
 }
-
-
 </script>
+
+<style type="text/css">
+.tagada {
+  font-size: 14px;
+  color: black;
+  margin: 2px;
+  font-family: Hei;
+}
+</style>
 
 </head><body onLoad="init();">
 <div id="map_canvas"></div>
 <input type='button' name='clickMe' value='remove [x]' onClick='gmh.removeCloseBoxFromInfowindow("KatHingWaiIW");' />
 <input type='button' name='clickMeToo' value='restore [x]' onClick='gmh.restoreCloseBoxFromInfowindow("KatHingWaiIW");' />
-<input type='button' name='clickMeThree' value='decorate' onClick='gmh.setInfowindowStyle("KatHingWaiIW", {"opacity":"0.8", "color":"blue", "fontSize":"24px", "font-family":"LiHei Pro", "background":"yellow", "border":"2px grey dotted","top":"120px"});gmh.removeBubblePointerFromInfowindow("KatHingWaiIW");' />
+<input type='button' name='clickMeThree' value='decorate' onClick='gmh.setInfowindowStyle("KatHingWaiIW", {"opacity":"0.8", "color":"blue", "fontSize":"22px", "font-family":"LiHei Pro", "background":"yellow", "border":"2px grey dotted","top":"120px"});gmh.removeBubblePointerFromInfowindow("KatHingWaiIW");gmh.setInfowindowStyle("KatHingWaiIW", {"color":"red", "fontSize":"18px", "textShadow": "0px 1px 0px #e1e1e8", "marginLeft":"10px", "marginTop":"4px", "overflow":"hidden"}, ".tagada");gmh.removeCloseBoxFromInfowindow("KatHingWaiIW");' />
 
 </body>
 </html>
