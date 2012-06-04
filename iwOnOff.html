@@ -7,8 +7,18 @@
 <style type="text/css">
 #map_canvas {
   width:  512px;
-  height: 512px;
-  border:   0px;
+  height:  512px;
+  border:    0px;
+  background: url('GMH/ajax-loader.gif') no-repeat;
+  background-position:center;
+}
+
+#mySneakyCanvas {
+  position: absolute;
+  top:       10px;
+  left:     600px;
+  width:     50px;
+  height:    50px;
 }
 </style>
 
@@ -21,7 +31,6 @@ var gmh;
 
 function init() {
   var whereAmI=new google.maps.LatLng(22.440099,114.064094);
-  console.log("whereAmI",whereAmI);
   var mapOptions = {
     zoom: 16,
     center: whereAmI,
@@ -33,9 +42,44 @@ function init() {
  gmh=new GMH(map, elm);
  gmh.addMarker(whereAmI, "KatHingWai");
  console.log("marker added");
- gmh.addInfoWindow(whereAmI, "吉慶圍<div class='tagada'>香港最靚嘅圍村</div>", "KatHingWaiIW");
+ gmh.addInfoWindow(whereAmI, "吉慶圍<div class='tagada'>香港最靚嘅圍村<"+"/div>", "KatHingWaiIW");
  console.log("infoWindow added");
- var t=setTimeout('gmh.findInfowindowEnclosingDiv("KatHingWaiIW");', 500);
+ google.maps.event.addListener(map, 'tilesloaded', function(){ 
+  console.log('map loaded');
+  gmh.findInfowindowEnclosingDiv("KatHingWaiIW");  
+ });
+}
+
+function demo(name) {
+  var iw=gmh.infoWindows[name];
+  var e=iw.enclosingDIV;
+  var z=e.getElementsByTagName("img");
+  var i;
+  var step=5;
+  for(i=0;i<10;i++) {
+    var p=z[i].style.left.replace("px","")*1;
+    z[i++].style.left=(p+step)+"px";
+    step=step*-1;
+  }
+}
+
+function demo2() {
+  var img=gmh.staticMapIMG();
+  var div=document.getElementById('staticMap');
+  div.innerHTML='';
+  div.appendChild(img);
+}
+
+function demo3() {
+  gmh.scoutSprite("KatHingWai");
+  gmh.scoutSprite("KatHingWai");
+}
+
+function decorate() {
+  gmh.setInfowindowStyle("KatHingWaiIW", {"opacity":"0.6", "color":"blue", "fontSize":"22px", "font-family":"LiHei Pro", "background":"yellow", "border":"2px grey dotted", "-webkit-border-radius": "20px"});
+  gmh.setInfowindowStyle("KatHingWaiIW", {"color":"red", "fontSize":"18px", "textShadow": "0px 1px 0px #e1e1e8", "marginLeft":"10px", "marginTop":"2px", "overflow":"hidden"}, ".tagada");
+  gmh.removeCloseBoxFromInfowindow("KatHingWaiIW");
+  gmh.slideInfowindowBy("KatHingWaiIW", 10, 20);
 }
 </script>
 
@@ -44,7 +88,7 @@ function init() {
   font-size: 14px;
   color: black;
   margin: 2px;
-  font-family: Hei;
+  font-family: 'LiHei Pro';
 }
 </style>
 
@@ -52,7 +96,11 @@ function init() {
 <div id="map_canvas"></div>
 <input type='button' name='clickMe' value='remove [x]' onClick='gmh.removeCloseBoxFromInfowindow("KatHingWaiIW");' />
 <input type='button' name='clickMeToo' value='restore [x]' onClick='gmh.restoreCloseBoxFromInfowindow("KatHingWaiIW");' />
-<input type='button' name='clickMeThree' value='decorate' onClick='gmh.setInfowindowStyle("KatHingWaiIW", {"opacity":"0.8", "color":"blue", "fontSize":"22px", "font-family":"LiHei Pro", "background":"yellow", "border":"2px grey dotted","top":"120px"});gmh.removeBubblePointerFromInfowindow("KatHingWaiIW");gmh.setInfowindowStyle("KatHingWaiIW", {"color":"red", "fontSize":"18px", "textShadow": "0px 1px 0px #e1e1e8", "marginLeft":"10px", "marginTop":"2px", "overflow":"hidden"}, ".tagada");gmh.removeCloseBoxFromInfowindow("KatHingWaiIW");' />
-
+<input type='button' name='clickMeThree' value='decorate' onClick='decorate();' />
+<input type='button' name='demoLeg' value='try this too' onClick='demo("KatHingWaiIW");' />
+<input type='button' name='staticMap' value='Static Map' onClick='demo2();' />
+<input type='button' name='SpriteDude' value='Sprite Dude' onClick='demo3();demo3();' />
+<div id='staticMap'></div>
+<canvas id='mySneakyCanvas'></canvas>
 </body>
 </html>

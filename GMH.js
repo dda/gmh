@@ -1,13 +1,11 @@
-// master 736e1a8]
+var overlay, point, pos;
 
 Number.prototype.toRad=function() {
  return this * (Math.PI / 180);
 }
 
 /***************************************************
-
                Google Maps Helper
-
 ***************************************************/
 var GMH=function(map, elm) {
   this.map=map;
@@ -64,9 +62,9 @@ GMH.prototype.addMarker=function(destinationPos, name, image) {
   var marker=new google.maps.Marker({
     position: destinationPos,
   });
+  marker.setMap(this.map);
   if(image!=null) marker.setIcon(image);
-  marker.setMap(map);
-  if(name=null) name=this.generateUUID();
+  if(name==null) name=this.generateUUID();
   this.markers[name]=marker;
   this.lastMarkerID=name;
 }
@@ -91,7 +89,6 @@ GMH.prototype.addInfoWindow = function(position, text, name) {
   infoWindow.savedText=text;
   if(name==null) name=this.generateUUID();
   this.infoWindows[name]=infoWindow;
-//  this.findInfowindowEnclosingDiv(name);
   this.lastInfoWindowID=name;
 }
 
@@ -209,24 +206,18 @@ GMH.prototype.bestZoomLevel=function(sw, ne, pixelWidth) {
 
 GMH.prototype.findInfowindowEnclosingDiv=function(name) {
   var b=this.element.getElementsByTagName('img');
-  console.log(this.element);
-  console.log("I have "+b.length+" <img> tags");
   var i, j=b.length;
   var iw=this.infoWindows[name];
   var contents=iw.tempUUID;
-  console.log("looking for a div with "+contents);
   for (i=0; i<j; i++) {
-    console.log("img.src=", b[i].src);
     if(b[i].src.match('imgs8.png')){
       if(b[i].style.left=='-18px') {
         c=b[i].parentElement.parentElement;
         d=c.children[1].children[0];
         if(d!=undefined) {
-          console.log("d.innerHTML=",d.innerHTML);
           if (d.innerHTML==contents) {
             // we have the right one
             e=c.parentElement;
-            console.log("Enclosing div: ",e);
             this.infoWindows[name].enclosingDIV=e;
             // Now let's get the real enclosure
             var z=e.getElementsByTagName("div");
@@ -266,7 +257,6 @@ GMH.prototype.setInfowindowStyle=function(name, options, target) {
     if(target.substring(0,1)==".") {
       // a class. for the moment, we'll work with the first instance.
       var z=e.getElementsByClassName(target.substring(1));
-      console.log(z);
       if(z==null) return;
       e=z[0];
       ee=e;
@@ -280,7 +270,6 @@ GMH.prototype.setInfowindowStyle=function(name, options, target) {
   }
   for (var x in options) {
     if(options.hasOwnProperty(x)) {
-      console.log("e.style."+x+"="+options[x]);
       if(x.match(/(background|border|overflow)/i)!=null) {
         // background/border goes to ee, the real enclosure
         ee.style[x]=options[x];
@@ -319,6 +308,15 @@ GMH.prototype.removeBubblePointerFromInfowindow=function(name) {
   }
 }
 
+GMH.prototype.slideInfowindowBy=function(name, w, h) {
+  this.removeBubblePointerFromInfowindow(name);
+  var m=gmh.infoWindows[name];
+  var x=Number(m.enclosingDIV.style.left.replace("px",""))+w;
+  var y=Number(m.enclosingDIV.style.top.replace("px",""))+h;
+  m.enclosingDIV.style.left=x+"px";
+  m.enclosingDIV.style.top=y+"px";
+}
+
 GMH.prototype.removeCloseBoxFromInfowindow=function(name) {
 // You need to call findInfowindowEnclosingDiv first
   var b=gmh.infoWindows[name].enclosingDIV.getElementsByTagName('img');
@@ -342,6 +340,93 @@ GMH.prototype.restoreCloseBoxFromInfowindow=function(name) {
   var div = document.createElement('div');
   div.innerHTML = iw.restoreMe.outerHTML;
   where.appendChild(div.childNodes[0]);
+}
+
+GMH.prototype.staticMapURL=function() {
+  var imgs=document.getElementsByTagName('img');
+  for (x in imgs) {
+    if(imgs[x].src!=null) {
+      if(imgs[x].src.indexOf("StaticMapService.GetMapImage")>-1) {
+        console.log(imgs[x].src);
+        return imgs[x].src;
+      }
+    }
+  }
+  console.log("Static map not found. Hacking it by hand.");
+  var currentPosition=map.getCenter();
+  return "http://maps.google.com/maps/api/staticmap?sensor=false&center=" + currentPosition.lat() + "," + currentPosition.lng() + "&zoom="+map.getZoom()+"&size=512x512&markers=color:green|label:X|" + currentPosition.lat() + ',' + currentPosition.lng();
+
+}
+
+GMH.prototype.staticMapIMG=function() {
+  var imgs=document.getElementsByTagName('img');
+  for (x in imgs) {
+    if(imgs[x].src!=null) {
+      if(imgs[x].src.indexOf("StaticMapService.GetMapImage")>-1) {
+        return imgs[x];
+      }
+    }
+  }
+}
+
+GMH.prototype.scoutSpriteIMG=function() {
+  var imgs=document.getElementsByTagName('img');
+  for (x in imgs) {
+    if(imgs[x].src!=null) {
+      if(imgs[x].src.indexOf("cb_scout_sprite")>-1) {
+        return imgs[x];
+      }
+    }
+  }
+}
+
+GMH.prototype.scoutSpriteURL=function() {
+  var imgs=document.getElementsByTagName('img');
+  for (x in imgs) {
+    if(imgs[x].src!=null) {
+      if(imgs[x].src.indexOf("cb_scout_sprite")>-1) {
+        return imgs[x].src;
+      }
+    }
+  }
+}
+
+GMH.prototype.scoutSprite=function(name) {
+  var sprite=this.scoutSpriteURL();
+  console.log(sprite);
+  var img=new Image;
+  img.crossOrigin = "Anonymous";
+  var c=document.getElementById('mySneakyCanvas');
+  c.width=50;
+  c.height=50;
+  var ctx = c.getContext('2d');
+  var m=this.markers[name];
+  pos=m.position;
+  var that=this;
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0);
+    var strDataURI = c.toDataURL("image/png");
+    overlay = new google.maps.OverlayView();
+    overlay.draw = function() {};
+    console.log("that:", that);
+    console.log("that.map:", that.map);
+    overlay.setMap(that.map);
+    console.log("pos", pos);
+    console.log("overlay", overlay);
+    point = overlay.getProjection().fromLatLngToContainerPixel(pos);
+    console.log(point);
+    c.style.left=(point.x-15)+"px";
+    c.style.top=(point.y-25)+"px";
+  }
+  img.src = sprite;
+}
+
+
+GMH.prototype.staticMapIMG=function() {
+  var src=this.staticMapURL();
+  var img=document.createElement('img');
+  img.src=src;
+  return img;
 }
 
 
