@@ -78,6 +78,10 @@ function demo3() {
 function decorate() {
   gmh.setInfowindowStyle("KatHingWaiIW", {"opacity":"0.6", "color":"blue", "fontSize":"22px", "font-family":"LiHei Pro", "background":"yellow", "border":"2px grey dotted", "-webkit-border-radius": "20px"});
   gmh.setInfowindowStyle("KatHingWaiIW", {"color":"red", "fontSize":"18px", "textShadow": "0px 1px 0px #e1e1e8", "marginLeft":"10px", "marginTop":"2px", "overflow":"hidden"}, ".tagada");
+  var x=gmh.nearestAirport(map.center);
+  var airport=x[0];
+  var distance=x[1];
+  gmh.addTextIntoInfowindow("KatHingWaiIW", "<span style='font-size: 10px;'>Closest Airport is "+airport.iata+"<"+"/span>");
   gmh.removeCloseBoxFromInfowindow("KatHingWaiIW");
   gmh.slideInfowindowBy("KatHingWaiIW", 10, 20);
 }
