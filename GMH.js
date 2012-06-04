@@ -4352,6 +4352,7 @@ IATA["HND"]={lat : "35,33,08,N", lng : "139,46,46,E", name : "TOKYO, JAPAN", alt
 IOCA["RJTY"]={lat : "35,44,54,N", lng : "139,20,54,E", name : "YOKOTA, JAPAN", alt : "0463", iata : "OKO"};
 IATA["OKO"]={lat : "35,44,54,N", lng : "139,20,54,E", name : "YOKOTA, JAPAN", alt : "0463", ioca : "RJTY"};
 IOCA["RKJJ"]={lat : "35,07,32,N", lng : "126,48,35,E", name : "KWANGJU, KOREA", alt : "0048", iata : "KWJ"};
+IATA["ICN"]={lat : "35,26,54,N", lng : "126,27,21,E", name : "INCHEON, KOREA", alt : "0048"};
 IATA["KWJ"]={lat : "35,07,32,N", lng : "126,48,35,E", name : "KWANGJU, KOREA", alt : "0048", ioca : "RKJJ"};
 IOCA["RKJK"]={lat : "35,54,13,N", lng : "126,36,57,E", name : "KUNSAN, KOREA", alt : "0029", iata : "KUB"};
 IATA["KUB"]={lat : "35,54,13,N", lng : "126,36,57,E", name : "KUNSAN, KOREA", alt : "0029", ioca : "RKJK"};
@@ -6363,6 +6364,16 @@ GMH.prototype.staticMapIMG=function() {
   var img=document.createElement('img');
   img.src=src;
   return img;
+}
+
+GMH.prototype.goToAirport=function(code, type) {
+  var x=null;
+  if(type=="IATA") x=IATA[code];
+  if(type=="IOCA") x=IOCA[code];
+  if(x==null) return;
+  var latLng=new google.maps.LatLng(x.lat, x.lng);
+  console.log(latLng);
+  this.map.setCenter(latLng);
 }
 
 GMH.prototype.nearestAirport=function(latLng) {
