@@ -26,10 +26,11 @@ v 0.1.17
     - Geocoding stuff:
       . addressToCoordinates(myCallback, myAddress, myRegion, myOptions)
         Versatile function that looks up an address and either hands over the result
-          to a callback, or handles the results itself. For the moment only one action
-          is present, "MARKER", which creates a marker, and optionally centers
-          the maps around it.
-    - bestZoomLevel(sw, ne, pixelWidth). A Stack Overflow question turned into good use.
+          to a callback, or handles the results itself. For the moment only
+          one action is present, "MARKER", which creates a marker, and
+          optionally centers the maps around it.
+    - bestZoomLevel(sw, ne, pixelWidth).
+      A Stack Overflow question turned into good use.
     - infoWindow stuff. So much has been (re)written, I should list everything again:
       . setInfowindowStyle(name, options, target). Sets some CSS options onto
         a (jQuery selector style) target. Rudimentary and fragile, but works well
