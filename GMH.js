@@ -32,6 +32,7 @@ for(i in IATA) {
 }
 
 var overlay, point, pos;
+var tmp;
 
 Number.prototype.toRad=function() {
  return this * (Math.PI / 180);
@@ -54,6 +55,7 @@ var GMH=function(map, elm) {
   this.lastMarkerID='';
   this.lastInfoWindowID='';
   this.GLOBE_WIDTH = 256; // a constant in Google's map projection
+  this.geocoder = new google.maps.Geocoder();
 }
 
 var GMH_MarkerIcon=function(image, size, origin, anchor, scaledSize) {
@@ -165,6 +167,59 @@ GMH.prototype.filterMarkers=function(nw, se, myMarkers) {
     }
   }
   return isInsideBounds;
+}
+
+GMH.prototype.addressToCoordinates=function(myCallback, myAddress, myRegion, myOptions) {
+  if(myRegion==null) myRegion='no';
+  var doWhat=myOptions.doWhat;
+  if (myCallback!=null){
+   this.geocoder.geocode(
+    {
+      address : myAddress,
+      region: myRegion
+    },
+    function(results, status){
+      if(status==google.maps.GeocoderStatus.OK) {
+        var latlngs=[];
+        var i,j;
+        j=that.results.length;
+        for (i=0;i<j;i++) {
+          latlngs.push(results[i].geometry.location);
+        }
+        myCallback.call(null, latlngs);
+      } else {
+        myCallback.call(null, status);
+      }
+    }
+   );
+  } else {
+   // The user wants us to do something with the result.
+    if(doWhat==null) return;
+    if(doWhat=="MARKER") {
+      // check for a name & img
+      var name=myOptions.name;
+      var image=myOptions.image;
+      var center=myOptions.center;
+      tmp={};
+      tmp.gmh=this;
+      tmp.name=name;
+      tmp.image=image;
+      tmp.center=center;
+      this.geocoder.geocode(
+        {
+          address : myAddress,
+          region: myRegion
+        },
+        function(results, status){
+          if(status==google.maps.GeocoderStatus.OK) {
+            tmp.gmh.addMarker(results[0].geometry.location, tmp.name, tmp.image);
+            if(tmp.center!=null) tmp.gmh.map.setCenter(results[0].geometry.location);
+            tmp=null;
+          }
+        }
+      );
+    }
+  }
 }
 
 
