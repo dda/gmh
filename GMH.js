@@ -162,6 +162,8 @@ GMH.prototype.filterMarkers=function(nw, se, myMarkers) {
   var south=se.lat();
   var east=se.lng();
   var isInsideBounds=[];
+  if(myMarkers==null) myMarkers=this.markers;
+  // default option is the list of existing markers created through GMH.
   for (var i in myMarkers) {
     if(myMarkers[i].position.lat()>=north && myMarkers[i].position.lat()<=south && myMarkers[i].position.lng()>=west && myMarkers[i].position.lng()<=east) {
       isInsideBounds.push(myMarkers[i]);
@@ -309,15 +311,6 @@ GMH.prototype.bestZoomLevel=function(sw, ne, pixelWidth) {
   
 }
 
-GMH.prototype.addTextIntoInfowindow=function(name, text) {
-  var iw=this.infoWindows[name];
-  var div=iw.enclosingDIV;
-  div=div.lastChild;
-  div=div.lastChild;
-  div.innerHTML=div.innerHTML+text;
-  console.log(div);
-}
-
 GMH.prototype.findInfowindowEnclosingDiv=function(name) {
   var b=this.element.getElementsByTagName('img');
   var i, j=b.length;
@@ -394,6 +387,15 @@ GMH.prototype.setInfowindowStyle=function(name, options, target) {
   }
 }
 
+GMH.prototype.addTextIntoInfowindow=function(name, text) {
+  var iw=this.infoWindows[name];
+  var div=iw.enclosingDIV;
+  div=div.lastChild;
+  div=div.lastChild;
+  div.innerHTML=div.innerHTML+text;
+  console.log(div);
+}
+
 GMH.prototype.removeBubblePointerFromInfowindow=function(name) {
   var iw=this.infoWindows[name];
   var e=iw.enclosingDIV;
@@ -456,33 +458,6 @@ GMH.prototype.restoreCloseBoxFromInfowindow=function(name) {
   where.appendChild(div.childNodes[0]);
 }
 
-GMH.prototype.staticMapURL=function() {
-  var imgs=document.getElementsByTagName('img');
-  for (x in imgs) {
-    if(imgs[x].src!=null) {
-      if(imgs[x].src.indexOf("StaticMapService.GetMapImage")>-1) {
-        console.log(imgs[x].src);
-        return imgs[x].src;
-      }
-    }
-  }
-  console.log("Static map not found. Hacking it by hand.");
-  var currentPosition=map.getCenter();
-  return "http://maps.google.com/maps/api/staticmap?sensor=false&center=" + currentPosition.lat() + "," + currentPosition.lng() + "&zoom="+map.getZoom()+"&size=512x512&markers=color:green|label:X|" + currentPosition.lat() + ',' + currentPosition.lng();
-
-}
-
-GMH.prototype.staticMapIMG=function() {
-  var imgs=document.getElementsByTagName('img');
-  for (x in imgs) {
-    if(imgs[x].src!=null) {
-      if(imgs[x].src.indexOf("StaticMapService.GetMapImage")>-1) {
-        return imgs[x];
-      }
-    }
-  }
-}
-
 GMH.prototype.scoutSpriteIMG=function() {
   var imgs=document.getElementsByTagName('img');
   for (x in imgs) {
@@ -535,6 +510,32 @@ GMH.prototype.scoutSprite=function(name) {
   img.src = sprite;
 }
 
+GMH.prototype.staticMapURL=function() {
+  var imgs=document.getElementsByTagName('img');
+  for (x in imgs) {
+    if(imgs[x].src!=null) {
+      if(imgs[x].src.indexOf("StaticMapService.GetMapImage")>-1) {
+        console.log(imgs[x].src);
+        return imgs[x].src;
+      }
+    }
+  }
+  console.log("Static map not found. Hacking it by hand.");
+  var currentPosition=map.getCenter();
+  return "http://maps.google.com/maps/api/staticmap?sensor=false&center=" + currentPosition.lat() + "," + currentPosition.lng() + "&zoom="+map.getZoom()+"&size=512x512&markers=color:green|label:X|" + currentPosition.lat() + ',' + currentPosition.lng();
+
+}
+
+GMH.prototype.staticMapIMG=function() {
+  var imgs=document.getElementsByTagName('img');
+  for (x in imgs) {
+    if(imgs[x].src!=null) {
+      if(imgs[x].src.indexOf("StaticMapService.GetMapImage")>-1) {
+        return imgs[x];
+      }
+    }
+  }
+}
 
 GMH.prototype.staticMapIMG=function() {
   var src=this.staticMapURL();
@@ -542,6 +543,10 @@ GMH.prototype.staticMapIMG=function() {
   img.src=src;
   return img;
 }
+
+// =====================================================
+//               Airport-related methods
+// =====================================================
 
 GMH.prototype.goToAirport=function(code, type) {
   var x=null;
@@ -605,8 +610,6 @@ GMH.prototype.lookupAirportsByName=function(name) {
 }
 
 
-
-
 // =====================================================
 //                  Internal/Helper methods
 // =====================================================
@@ -633,37 +636,11 @@ GMH.prototype._getRandomInt=function(a){
   if(a<0)return NaN;
   if(a<=30)return 0|Math.random()*(1<<a);
   if(a<=53)return(0|Math.random()*1073741824)+(0|Math.random()*(1<<a-30))*1073741824;
-  return NaN
+  return NaN;
 };
 GMH.prototype._hexAligner=function(b, f) {
   var a=16;
-    for(var c=b.toString(a),d=f-c.length,e="0";d>0;d>>>=1,e+=e)
-      if(d&1)c=e+c;
-    return c
+  for(var c=b.toString(a),d=f-c.length,e="0";d>0;d>>>=1,e+=e)
+    if(d&1)c=e+c;
+  return c;
 }
-
-Array.prototype.flatten=function() {
-  var a=new Array();
-  for (x in this) {
-    if(this.hasOwnProperty(x)){
-      if(typeof(this[x])=="object") {
-        if(this[x].join==undefined) {
-          //object
-          var b=Array.from(this[x]);
-          b=b.flatten();
-          a=a.concat(b);
-        } else {
-          b=this[x].flatten();
-          a=a.concat(b);
-        }
-      } else {
-        a.push(this[x]);
-      }
-    }
-  }
-  return a;
-// var myArray = [1,2,3,[4,5, [6,7]], [[[8]]]];
-// var newArray = myArray.flatten();
-// newArray is [1,2,3,4,5,6,7,8]
-}
-
