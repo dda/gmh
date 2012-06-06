@@ -9,30 +9,42 @@ I am adding a small test html page that shows what GMH can do for you.
 v 0.1.17
   Additions:
     - Global Airport Database [http://www.partow.net/miscellaneous/airportdatabase/]
-      I built two large JS arrays based on this database, mostly redundant: IATA[] and ICAO[];
-      they provide essentially the same data, cross-referenced, with the IATA and ICAO codes as indexes.
+      I built two large JS arrays based on this database, mostly redundant:
+      IATA[] and ICAO[];
+      they provide essentially the same data, cross-referenced, with the IATA and
+      ICAO codes as indexes.
       These are used in the following functions:
       . nearestAirport(latLng). Returns the nearest airport and distance in an array.
-      . goToAirport(code, type). Centers the map around an airport designated by IATA/ICAO code.
-      . lookupAirportsByName(name). Returns a list of airports whose name matches the string/regex pattern passed.
-    - New object GMH_MarkerIcon. Will be used in the addMarker code to provide more versatile marker icons.
-    - New function filterMarkers(nw, se, [myMarkers]). Returns a list of markers that are within given NW/SE bounds.
+      . goToAirport(code, type). Centers the map around an airport designated
+        by IATA/ICAO code.
+      . lookupAirportsByName(name). Returns a list of airports whose name matches
+        the string/regex pattern passed.
+    - New object GMH_MarkerIcon. Will be used in the addMarker code to provide
+      more versatile marker icons.
+    - New function filterMarkers(nw, se, [myMarkers]). Returns a list of markers
+      that are within given NW/SE bounds.
     - Geocoding stuff:
       . addressToCoordinates(myCallback, myAddress, myRegion, myOptions)
-        Versatile function that looks up an address and either hands over the result to a callback,
-        or handles the results itself. For the moment only one action is present, "MARKER", which
-        creates a marker, and optionally centers the maps around it.
+        Versatile function that looks up an address and either hands over the result
+          to a callback, or handles the results itself. For the moment only one action
+          is present, "MARKER", which creates a marker, and optionally centers
+          the maps around it.
     - bestZoomLevel(sw, ne, pixelWidth). A Stack Overflow question turned into good use.
     - infoWindow stuff. So much has been (re)written, I should list everything again:
-      . setInfowindowStyle(name, options, target). Sets some CSS options onto a (jQuery selector style) target.
-        Rudimentary and fragile, but works well enough in the sample project.
-      . addTextIntoInfowindow(name, text). Insert text into the infoWindow, after the existing text.
-      . removeBubblePointerFromInfowindow(name). Removes the arrow-ish shape of the comic books-style bubble.
-        The infoWindow turns into a square, and no shadow. Necessary if you want to do intricate styling.
+      . setInfowindowStyle(name, options, target). Sets some CSS options onto
+        a (jQuery selector style) target. Rudimentary and fragile, but works well
+        enough in the sample project.
+      . addTextIntoInfowindow(name, text). Insert text into the infoWindow, after
+        the existing text.
+      . removeBubblePointerFromInfowindow(name). Removes the arrow-ish shape of the
+        comic books-style bubble. The infoWindow turns into a square, and no shadow.
+        Necessary if you want to do intricate styling.
       . slideInfowindowBy(name, w, h). Moves the infoWindow along the x and y axis.
-      . removeCloseBoxFromInfowindow/restoreCloseBoxFromInfowindow(name). Another Stack Overflow-inspired feature.
+      . removeCloseBoxFromInfowindow/restoreCloseBoxFromInfowindow(name).
+        Another Stack Overflow-inspired feature.
         Very fragile hack, but seems to work most of the time. For now.
-      . Ignore for now the `Sprite` functions. I am just messing around with the little yellow dude.
+      . Ignore for now the `Sprite` functions. I am just messing around with
+        the little yellow dude.
       . staticMapIMG(). Returns an IMG element with a static copy of the current map.
 
 That's about it. I am working on documenting the code (more). More to come soon.
