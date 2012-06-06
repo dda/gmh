@@ -100,6 +100,14 @@ function decorate() {
   margin: 2px;
   font-family: 'LiHei Pro';
 }
+
+#myAddress:focus {
+  color: black;
+}
+#myAddress {
+  width: 200px;
+  color: grey;
+}
 </style>
 
 </head><body onLoad="init();">
@@ -112,8 +120,9 @@ function decorate() {
 <input type='button' name='SpriteDude' value='Sprite Dude' onClick='demo3();demo3();' />
 <input type='button' name='IcanFly' value='I Can Fly' onClick='gmh.goToAirport("JFK", "IATA");gmh.map.setZoom(12);' />
 <input type='button' name='IcanFly2' value='I Can Fly Too' onClick='gmh.goToAirport("RPVR", "ICAO");gmh.map.setZoom(13);' />
-<input type='button' name='na' value='nearest Airport' onClick='demo4();' />
-<input type='button' name='getAddress' value='Get Address' onClick='gmh.addressToCoordinates(null, "8 Finance Street Hong Kong",null,{doWhat:"MARKER", name:"WESTMERE", center: true});' />
+<input type='button' name='na' value='nearest Airport' onClick='demo4();' /><br />
+<input type='text' value='8 Finance Street Hong Kong' id='myAddress' />
+<input type='button' name='getAddress' value='Get Address' onClick='gmh.addressToCoordinates(null, document.getElementById("myAddress").value, null, {doWhat:"MARKER", center: true, zoomLevel: 18});' />
 
 <div id='staticMap'></div>
 <canvas id='mySneakyCanvas'></canvas>

@@ -102,6 +102,7 @@ GMH.prototype.addMarker=function(destinationPos, name, image) {
   if(name==null) name=this.generateUUID();
   this.markers[name]=marker;
   this.lastMarkerID=name;
+  // If the user lets us pick a UUID for the marker, we let them know what it's name by setting lastMarkerID.
 }
 
   /**
@@ -169,6 +170,24 @@ GMH.prototype.filterMarkers=function(nw, se, myMarkers) {
   return isInsideBounds;
 }
 
+  /**
+   * Geocoding stuff
+   *
+   * @param myCallback	[optional]	callback function([results] OR error code)
+   									If no callback is given, it is assumed the user
+   									wants us to do something with the result. See options
+   * @param myAddress	[required]	address to geolocate
+   * @param myRegion	[optional]	Politically correct word for country :-)
+   * @param myOptions	[optional]	options used when no callback is given
+   									. doWhat: "MARKER" Create a new marker at this address
+   									  <other options will come later>
+   									. name: Name of the marker [optional]
+   									. image: Custom icon [optional]
+   									. center: If you want the map to be recentered around the marker [optional]
+   									. zoomLevel: The zoom level you want if you recenter [optional]
+   * @return    	nada
+   */
+
 GMH.prototype.addressToCoordinates=function(myCallback, myAddress, myRegion, myOptions) {
   if(myRegion==null) myRegion='no';
   var doWhat=myOptions.doWhat;
@@ -197,14 +216,12 @@ GMH.prototype.addressToCoordinates=function(myCallback, myAddress, myRegion, myO
     if(doWhat==null) return;
     if(doWhat=="MARKER") {
       // check for a name & img
-      var name=myOptions.name;
-      var image=myOptions.image;
-      var center=myOptions.center;
       tmp={};
       tmp.gmh=this;
-      tmp.name=name;
-      tmp.image=image;
-      tmp.center=center;
+      tmp.name=myOptions.name; // optional
+      tmp.image=myOptions.image; // optional
+      tmp.center=myOptions.center; // optional. Set to true to activate
+      tmp.zoomLevel=myOptions.zoomLevel; // optional
       this.geocoder.geocode(
         {
           address : myAddress,
@@ -213,7 +230,11 @@ GMH.prototype.addressToCoordinates=function(myCallback, myAddress, myRegion, myO
         function(results, status){
           if(status==google.maps.GeocoderStatus.OK) {
             tmp.gmh.addMarker(results[0].geometry.location, tmp.name, tmp.image);
-            if(tmp.center!=null) tmp.gmh.map.setCenter(results[0].geometry.location);
+            console.log("Marker ID: "+tmp.gmh.lastMarkerID);
+            if(tmp.center==true){
+              tmp.gmh.map.setCenter(results[0].geometry.location);
+              if(tmp.zoomLevel!=null) tmp.gmh.map.setZoom(tmp.zoomLevel);
+            }
             tmp=null;
           }
         }
